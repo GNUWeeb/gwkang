@@ -4,6 +4,10 @@ import io
 import tempfile
 import shutil
 import utilsfunc as fn
+from pyrogram.raw.types import InputDocument
+from pyrogram.raw.functions.stickers import RemoveStickerFromSet
+
+from pyrogram.file_id import FileId
 
 from pymongo import MongoClient
 from dotenv import load_dotenv
@@ -127,10 +131,24 @@ async def kangfunc(client, msg):
         except Exception as e:
             await msg.reply_text(e)
 
+@app.on_message(filters.command(['unkang']))
+async def unkangfunc(client, msg):
 
+    if msg.reply_to_message == None:
+        await msg.reply_text("you must reply to another message")
+        return;
+    
+    decoded = FileId.decode(fn.get_file_id(msg))
 
+    await client.invoke(RemoveStickerFromSet(
+        sticker=InputDocument(
+        
+                id=decoded.media_id,
+                access_hash=decoded.access_hash,
+                file_reference=decoded.file_reference
+        )
+    ))
     
-    
-    
+    await msg.reply_text("sticker unkanged!")
 
 app.run()
