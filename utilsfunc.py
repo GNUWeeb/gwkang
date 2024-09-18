@@ -7,7 +7,7 @@ load_dotenv()
 def genrand_stickerpack_name(msg):
         cur_time = int(time());
         return [
-                f'sticker {msg.from_user.id} on {cur_time}',
+                f'Sticker {msg.from_user.first_name} {msg.from_user.last_name}',
                 f'a{msg.from_user.id}_on_{cur_time}_by_{os.getenv("BOT_USERNAME")}',
         ]
 
