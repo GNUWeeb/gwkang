@@ -4,6 +4,9 @@ import os
 import emoji
 import tempfile
 import shutil
+from pyrogram.types import Sticker
+from pyrogram.raw.functions.messages import GetStickerSet
+from pyrogram.raw.types import InputStickerSetShortName
 
 load_dotenv()
 
@@ -63,3 +66,13 @@ async def gen_file_report(client, msg, errstr):
     await client.send_document(document=fulldirpath, chat_id=msg.chat.id)
 
     shutil.rmtree(dirpath)
+    
+async def get_stickers(self, short_name):
+    sticker_set = await self.invoke(
+        GetStickerSet(stickerset=InputStickerSetShortName(short_name=short_name), hash=0)
+    )
+    
+    return [
+        await Sticker._parse(self, doc, {type(a): a for a in doc.attributes})
+        for doc in sticker_set.documents
+    ]

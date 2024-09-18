@@ -96,8 +96,7 @@ async def kangfunc(client, msg):
             collection.insert_one(
                 {
                     'user_id': msg.from_user.id,
-                    'current': packshort,
-                    'len': 1
+                    'current': packshort
                 }
             )
             
@@ -115,18 +114,7 @@ async def kangfunc(client, msg):
                 user_id=msg.from_user.id,
                 emoji=sanitized_input["ret"]
             )
-            
-            collection.update_one(
-                {
-                    'user_id': msg.from_user.id,
-                },
-                {
-                    '$set': {
-                        'len': dbquery["len"] + 1
-                    }
-                }
-            )
-            
+        
             await msg.reply_text(f"kanged!, here your sticker\n\n{"https://t.me/addstickers/" + ret.short_name}")
         except Exception as e:
             await msg.reply_text(e)
@@ -150,5 +138,46 @@ async def unkangfunc(client, msg):
     ))
     
     await msg.reply_text("sticker unkanged!")
+    
+@app.on_message(filters.command(['fork']))
+async def unkangfunc(client, msg):
+    
+    if msg.reply_to_message == None:
+        await msg.reply_text("you must reply to another sticker")
+        return;
+    
+    await msg.reply_text("Processing... It's takes a littebit of time.")
+    
+    is_first = True
+    
+    packraw = fn.genrand_stickerpack_name(msg)
+    packname = packraw[0]
+    packshort = packraw[1]
+    
+    # stickerset = await fn.get_stickers(client, msg.reply_to_message.sticker.set_name)
+    for s in await fn.get_stickers(client, msg.reply_to_message.sticker.set_name):
+        print(f"forking: {s.file_id} {packshort}")
+        if is_first == True:
+            await client.create_sticker_set(
+                title=packname, 
+                short_name=packshort, 
+                sticker=s.file_id,
+                user_id=msg.from_user.id,
+                emoji=s.emoji
+            )
+            
+            is_first = False
+        else:
+            try:
+                await client.add_sticker_to_set(
+                    set_short_name=packshort, 
+                    sticker=s.file_id,
+                    user_id=msg.from_user.id,
+                    emoji=s.emoji
+                )
+            except:
+                print(f"err forking: {s.file_id} {packshort}")
+    # print(stickerset)
+    await msg.reply_text(f"sticker forked!, <a href='https://t.me/addstickers/{packshort}'>link</a>")
 
 app.run()
