@@ -57,5 +57,71 @@ async def testfn(client, msg):
     await client.send_document(document=fulldirpath, chat_id=msg.chat.id)
 
     shutil.rmtree(dirpath)
+    
+@app.on_message(filters.command(['kang']))
+async def kangfunc(client, msg):
+    database = g_dbctx["kangutils"]
+    collection = database["stickerpack_state"]
+    
+    # find current sticker set
+    dbquery = collection.find_one({'user_id': msg.from_user.id});
+    
+    sanitized_input = fn.sanitize_emoji(msg)
+    if sanitized_input["err"] == 1:
+        await msg.reply_text(sanitized_input["msg"])
+        return;
+    
+
+    if dbquery == None:
+        packraw = fn.genrand_stickerpack_name(msg)
+        packname = packraw[0]
+        packshort = packraw[1]
+        
+        
+        ret = await client.create_sticker_set(
+            title=packname, 
+            short_name=packshort, 
+            sticker=fn.get_file_id(msg),
+            user_id=msg.from_user.id,
+            emoji=sanitized_input["ret"]
+        )
+        
+        collection.insert_one(
+            {
+                'user_id': msg.from_user.id,
+                'current': packshort,
+                'len': 1
+            }
+        )
+        
+        await msg.reply_text(f"kanged!, here your sticker\n\n{"https://t.me/addstickers/" + ret.short_name}")
+    else:
+        packshort = dbquery["current"]
+        
+        ret = await client.add_sticker_to_set(
+            set_short_name=packshort,
+            sticker=fn.get_file_id(msg),
+            user_id=msg.from_user.id,
+            emoji=sanitized_input["ret"]
+        )
+        
+        collection.update_one(
+            {
+                'user_id': msg.from_user.id,
+            },
+            {
+                '$set': {
+                    'len': dbquery["len"] + 1
+                }
+            }
+        )
+        print(ret)
+        
+        
+        await msg.reply_text(f"kanged!, here your sticker\n\n{"https://t.me/addstickers/" + ret.short_name}")
+
+    
+    
+    
 
 app.run()
