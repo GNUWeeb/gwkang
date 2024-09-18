@@ -2,6 +2,8 @@ from time import time
 from dotenv import load_dotenv
 import os
 import emoji
+import tempfile
+import shutil
 
 load_dotenv()
 
@@ -51,4 +53,13 @@ def sanitize_emoji(msg):
     }
             
 
-                        
+async def gen_file_report(client, msg, errstr):
+    dirpath = tempfile.mkdtemp()
+    fulldirpath = dirpath + '/' + "ret.json"
+    
+    with open(fulldirpath, "w+") as dbgstr:
+        dbgstr.write(str(errstr))
+
+    await client.send_document(document=fulldirpath, chat_id=msg.chat.id)
+
+    shutil.rmtree(dirpath)
