@@ -77,48 +77,54 @@ async def kangfunc(client, msg):
         packname = packraw[0]
         packshort = packraw[1]
         
-        
-        ret = await client.create_sticker_set(
-            title=packname, 
-            short_name=packshort, 
-            sticker=fn.get_file_id(msg),
-            user_id=msg.from_user.id,
-            emoji=sanitized_input["ret"]
-        )
-        
-        collection.insert_one(
-            {
-                'user_id': msg.from_user.id,
-                'current': packshort,
-                'len': 1
-            }
-        )
-        
-        await msg.reply_text(f"kanged!, here your sticker\n\n{"https://t.me/addstickers/" + ret.short_name}")
+        try:
+            ret = await client.create_sticker_set(
+                title=packname, 
+                short_name=packshort, 
+                sticker=fn.get_file_id(msg),
+                user_id=msg.from_user.id,
+                emoji=sanitized_input["ret"]
+            )
+            
+            collection.insert_one(
+                {
+                    'user_id': msg.from_user.id,
+                    'current': packshort,
+                    'len': 1
+                }
+            )
+            
+            await msg.reply_text(f"kanged!, here your sticker\n\n{"https://t.me/addstickers/" + ret.short_name}")
+        except Exception as e:
+            await msg.reply_text(e)
     else:
         packshort = dbquery["current"]
         
-        ret = await client.add_sticker_to_set(
-            set_short_name=packshort,
-            sticker=fn.get_file_id(msg),
-            user_id=msg.from_user.id,
-            emoji=sanitized_input["ret"]
-        )
-        
-        collection.update_one(
-            {
-                'user_id': msg.from_user.id,
-            },
-            {
-                '$set': {
-                    'len': dbquery["len"] + 1
+        try:
+            ret = await client.add_sticker_to_set(
+                
+                set_short_name=packshort,
+                sticker=fn.get_file_id(msg),
+                user_id=msg.from_user.id,
+                emoji=sanitized_input["ret"]
+            )
+            
+            collection.update_one(
+                {
+                    'user_id': msg.from_user.id,
+                },
+                {
+                    '$set': {
+                        'len': dbquery["len"] + 1
+                    }
                 }
-            }
-        )
-        print(ret)
-        
-        
-        await msg.reply_text(f"kanged!, here your sticker\n\n{"https://t.me/addstickers/" + ret.short_name}")
+            )
+            
+            await msg.reply_text(f"kanged!, here your sticker\n\n{"https://t.me/addstickers/" + ret.short_name}")
+        except Exception as e:
+            await msg.reply_text(e)
+
+
 
     
     
