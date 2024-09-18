@@ -140,7 +140,7 @@ async def unkangfunc(client, msg):
     await msg.reply_text("sticker unkanged!")
     
 @app.on_message(filters.command(['fork']))
-async def unkangfunc(client, msg):
+async def forkfunc(client, msg):
     
     if msg.reply_to_message == None:
         await msg.reply_text("you must reply to another sticker")
