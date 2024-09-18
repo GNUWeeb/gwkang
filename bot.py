@@ -39,6 +39,9 @@ async def test(client, msg):
     
 @app.on_message(filters.command(['dfid']))
 async def testfid(client, msg):
+    if msg.reply_to_message == None:
+        await msg.reply_text("you must reply to another message")
+        return;
     await msg.reply_text(fn.get_file_id(msg))
     
 
@@ -91,6 +94,10 @@ async def create_new_stickerpack(client, msg, sanitized_input, collection):
     
 @app.on_message(filters.command(['kang']))
 async def kangfunc(client, msg):
+    if msg.reply_to_message == None or msg.reply_to_message.sticker == None:
+        await msg.reply_text("you must reply to another sticker, not a message")
+        return;
+    
     database = g_dbctx["kangutils"]
     collection = database["stickerpack_state"]
     
@@ -100,10 +107,6 @@ async def kangfunc(client, msg):
     sanitized_input = fn.sanitize_emoji(msg)
     if sanitized_input["err"] == 1:
         await msg.reply_text(sanitized_input["msg"])
-        return;
-    
-    if msg.reply_to_message.sticker == None:
-        await msg.reply_text("you must reply to another sticker, not a message")
         return;
 
     if dbquery == None:
@@ -149,7 +152,7 @@ async def unkangfunc(client, msg):
 @app.on_message(filters.command(['fork']))
 async def forkfunc(client, msg):
     
-    if msg.reply_to_message.sticker == None:
+    if msg.reply_to_message == None or msg.reply_to_message.sticker == None:
         await msg.reply_text("you must reply to another sticker")
         return;
     
@@ -190,7 +193,7 @@ async def forkfunc(client, msg):
 
 @app.on_message(filters.command(['to_ts']))
 async def to_tsfunc(client, msg):
-    if msg.reply_to_message.photo == None:
+    if msg.reply_to_message == None or msg.reply_to_message.photo == None:
         await msg.reply_text("you must reply to photo")
         return;
     
@@ -220,7 +223,7 @@ async def to_tsfunc(client, msg):
     
 @app.on_message(filters.command(['packinfo']))
 async def packinfofunc(client, msg):
-    if msg.reply_to_message.sticker == None:
+    if msg.reply_to_message == None or msg.reply_to_message.sticker == None:
         await msg.reply_text("you must reply to sticker")
         return;
     
@@ -234,6 +237,5 @@ async def packinfofunc(client, msg):
         f"short_name: {data.short_name}\n" + 
         f"total: {data.count}\n"
     )
-    
     
 app.run()
