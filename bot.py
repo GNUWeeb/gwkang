@@ -6,6 +6,7 @@ import shutil
 import utilsfunc as fn
 from pyrogram.raw.types import InputDocument
 from pyrogram.raw.functions.stickers import RemoveStickerFromSet
+import pyrogram.errors.exceptions as pyroexception
 
 from pyrogram.file_id import FileId
 
@@ -63,6 +64,31 @@ async def testfn(client, msg):
 
     shutil.rmtree(dirpath)
     
+async def create_new_stickerpack(client, msg, sanitized_input, collection):
+    packraw = fn.genrand_stickerpack_name(msg)
+    packname = packraw[0]
+    packshort = packraw[1]
+    
+    try:
+        ret = await client.create_sticker_set(
+            title=packname, 
+            short_name=packshort, 
+            sticker=fn.get_file_id(msg),
+            user_id=msg.from_user.id,
+            emoji=sanitized_input["ret"]
+        )
+        
+        collection.insert_one(
+            {
+                'user_id': msg.from_user.id,
+                'current': packshort
+            }
+        )
+        
+        await msg.reply_text(f"kanged!, here your sticker\n\n{"https://t.me/addstickers/" + ret.short_name}")
+    except Exception as e:
+        await msg.reply_text(e)
+    
 @app.on_message(filters.command(['kang']))
 async def kangfunc(client, msg):
     database = g_dbctx["kangutils"]
@@ -81,29 +107,7 @@ async def kangfunc(client, msg):
         return;
 
     if dbquery == None:
-        packraw = fn.genrand_stickerpack_name(msg)
-        packname = packraw[0]
-        packshort = packraw[1]
-        
-        try:
-            ret = await client.create_sticker_set(
-                title=packname, 
-                short_name=packshort, 
-                sticker=fn.get_file_id(msg),
-                user_id=msg.from_user.id,
-                emoji=sanitized_input["ret"]
-            )
-            
-            collection.insert_one(
-                {
-                    'user_id': msg.from_user.id,
-                    'current': packshort
-                }
-            )
-            
-            await msg.reply_text(f"kanged!, here your sticker\n\n{"https://t.me/addstickers/" + ret.short_name}")
-        except Exception as e:
-            await msg.reply_text(e)
+        await create_new_stickerpack(client, msg, sanitized_input, collection)
     else:
         packshort = dbquery["current"]
         
@@ -117,6 +121,8 @@ async def kangfunc(client, msg):
             )
         
             await msg.reply_text(f"kanged!, here your sticker\n\n{"https://t.me/addstickers/" + ret.short_name}")
+        except pyroexception.bad_request_400.StickersTooMuch:
+            await create_new_stickerpack(client, msg, sanitized_input, collection)
         except Exception as e:
             await msg.reply_text(e)
 
