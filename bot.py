@@ -11,6 +11,7 @@ from pyrogram.file_id import FileId
 
 from pymongo import MongoClient
 from dotenv import load_dotenv
+from PIL import Image
 
 g_dbctx = MongoClient(os.getenv("MONGO_URI"))
 load_dotenv()
@@ -75,8 +76,8 @@ async def kangfunc(client, msg):
         await msg.reply_text(sanitized_input["msg"])
         return;
     
-    if msg.reply_to_message == None:
-        await msg.reply_text("you must reply to another message")
+    if msg.reply_to_message.sticker == None:
+        await msg.reply_text("you must reply to another sticker, not a message")
         return;
 
     if dbquery == None:
@@ -142,7 +143,7 @@ async def unkangfunc(client, msg):
 @app.on_message(filters.command(['fork']))
 async def forkfunc(client, msg):
     
-    if msg.reply_to_message == None:
+    if msg.reply_to_message.sticker == None:
         await msg.reply_text("you must reply to another sticker")
         return;
     
@@ -180,4 +181,35 @@ async def forkfunc(client, msg):
     # print(stickerset)
     await msg.reply_text(f"sticker forked!, <a href='https://t.me/addstickers/{packshort}'>link</a>")
 
+
+@app.on_message(filters.command(['to_ts']))
+async def to_tsfunc(client, msg):
+    if msg.reply_to_message.photo == None:
+        await msg.reply_text("you must reply to photo")
+        return;
+    
+    bytesio_ret = await client.download_media(
+        message=msg.reply_to_message,
+        in_memory=True
+    )
+    
+    size = 512, 512
+    
+    iomem = io.BytesIO()
+    iomem.name = "rand.webp"
+    
+    image = Image.open(bytesio_ret)
+    image = image.convert('RGB')
+    image = image.resize((512, 512), Image.Resampling.LANCZOS)
+
+    image.save(iomem, 'webp')
+    
+    
+    await client.send_sticker(
+        chat_id=msg.chat.id,
+        sticker=iomem,
+        reply_to_message_id=msg.reply_to_message.id
+    )
+    
+    
 app.run()
