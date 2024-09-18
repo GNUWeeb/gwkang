@@ -212,4 +212,22 @@ async def to_tsfunc(client, msg):
     )
     
     
+@app.on_message(filters.command(['packinfo']))
+async def packinfofunc(client, msg):
+    if msg.reply_to_message.sticker == None:
+        await msg.reply_text("you must reply to sticker")
+        return;
+    
+    data = await client.get_sticker_set(
+        msg.reply_to_message.sticker.set_name
+    )
+    
+    await msg.reply_text(
+        f"id: {data.id}\n" + 
+        f"title: {data.title}\n" + 
+        f"short_name: {data.short_name}\n" + 
+        f"total: {data.count}\n"
+    )
+    
+    
 app.run()
