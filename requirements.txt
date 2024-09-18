@@ -1,0 +1,12 @@
+aiosqlite==0.20.0
+dnspython==2.6.1
+emoji==2.12.1
+pillow==10.4.0
+pyaes==1.6.1
+pymediainfo-pyrofork==6.0.1
+pymongo==4.8.0
+pyrofork==2.3.46
+PySocks==1.7.1
+python-dotenv==1.0.1
+TgCrypto==1.2.5
+typing_extensions==4.12.2
