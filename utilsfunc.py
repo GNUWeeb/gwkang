@@ -19,6 +19,8 @@ def get_file_id(msg):
                 return msg.reply_to_message.animation.file_id
         if msg.reply_to_message.sticker != None:
                 return msg.reply_to_message.sticker.file_id
+        if msg.reply_to_message.document != None and msg.reply_to_message.document.mime_type == "video/webm":
+                return msg.reply_to_message.document.file_id
         
 def sanitize_emoji(msg):
     
