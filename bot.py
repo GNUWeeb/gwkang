@@ -7,6 +7,7 @@ import utilsfunc as fn
 from pyrogram.raw.types import InputDocument
 from pyrogram.raw.functions.stickers import RemoveStickerFromSet
 import pyrogram.errors.exceptions as pyroexception
+import pyrogram.enums as pyroenum
 
 from pyrogram.file_id import FileId
 
@@ -157,6 +158,10 @@ async def forkfunc(client, msg):
         return;
     
     await msg.reply_text("Processing... It's takes a littebit of time.")
+    await client.send_chat_action(
+        chat_id=msg.chat.id,
+        action=pyroenum.ChatAction.TYPING
+    )
     
     is_first = True
     
