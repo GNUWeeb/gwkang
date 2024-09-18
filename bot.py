@@ -71,6 +71,9 @@ async def kangfunc(client, msg):
         await msg.reply_text(sanitized_input["msg"])
         return;
     
+    if msg.reply_to_message == None:
+        await msg.reply_text("you must reply to another message")
+        return;
 
     if dbquery == None:
         packraw = fn.genrand_stickerpack_name(msg)
