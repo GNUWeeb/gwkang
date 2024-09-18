@@ -3,9 +3,12 @@ GNU/Weeb kang util bot
 
 ## Installation
 ```sh
+sudo apt-get install python3-pip python3-venv
 git clone https://github.com/GNUWeeb/gwkang.git
 cd gwkang
+mkdir venv && cd venv
 python -m venv .
+cd ..
 ./venv/bin/pip3 install -r requirements.txt
 ./venv/bin/python bot.py
 ```
