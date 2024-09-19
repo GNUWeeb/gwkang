@@ -139,16 +139,19 @@ async def unkangfunc(client, msg):
     
     decoded = FileId.decode(fn.get_file_id(msg))
 
-    await client.invoke(RemoveStickerFromSet(
-        sticker=InputDocument(
+    try:
+        await client.invoke(RemoveStickerFromSet(
+            sticker=InputDocument(
+            
+                    id=decoded.media_id,
+                    access_hash=decoded.access_hash,
+                    file_reference=decoded.file_reference
+            )
+        ))
         
-                id=decoded.media_id,
-                access_hash=decoded.access_hash,
-                file_reference=decoded.file_reference
-        )
-    ))
-    
-    await msg.reply_text("sticker unkanged!")
+        await msg.reply_text("sticker unkanged!")
+    except pyroexception.bad_request_400.StickersetInvalid:
+        await msg.reply_text("This sticker is not yours, can't unkang. make sure you do /fork then /unkang")
     
 @app.on_message(filters.command(['fork']))
 async def forkfunc(client, msg):
