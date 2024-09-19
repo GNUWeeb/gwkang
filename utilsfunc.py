@@ -33,12 +33,6 @@ def sanitize_emoji(msg):
     try:
         cur = msg.command[1]
         
-        if len(msg.command[1]) > 1:
-            return {
-                "err": 1,
-                "msg": "A custom emoji must be just 1 chars length",
-                "ret": None
-            }
         
         if emoji.is_emoji(msg.command[1]) == False:
             return {
@@ -46,6 +40,13 @@ def sanitize_emoji(msg):
                 "msg": "You need emoji, not a chars",
                 "ret": None
             }
+        if emoji.emoji_count(msg.command[1]) > 1:
+            return {
+                "err": 1,
+                "msg": "A custom emoji must be just 1 chars length",
+                "ret": None
+            }
+        
     except IndexError:
         cur = "🗿"
         
