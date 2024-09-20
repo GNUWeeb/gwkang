@@ -82,7 +82,7 @@ async def create_new_stickerpack(client, msg, sanitized_input, collection):
             emoji=sanitized_input["ret"]
         )
         
-        await msg.reply_text(f"kanged!, here your sticker\n\n{"https://t.me/addstickers/" + ret.short_name}")
+        await msg.reply_text(f"<a href='https://t.me/addstickers/{ret.short_name}'>Kanged!</a>")
         return packshort
     
     except pyroexception.bad_request_400.PeerIdInvalid as e:
@@ -130,8 +130,8 @@ async def kangfunc(client, msg):
                 user_id=msg.from_user.id,
                 emoji=sanitized_input["ret"]
             )
-        
-            await msg.reply_text(f"kanged!, here your sticker\n\n{"https://t.me/addstickers/" + ret.short_name}")
+
+            await msg.reply_text(f"<a href='https://t.me/addstickers/{ret.short_name}'>Kanged!</a>")
         except (pyroexception.bad_request_400.StickersTooMuch, 
                 pyroexception.bad_request_400.StickersetInvalid):
             fnret = await create_new_stickerpack(client, msg, sanitized_input, collection)
@@ -221,7 +221,7 @@ async def forkfunc(client, msg):
             except:
                 print(f"err forking: {s.file_id} {packshort}")
     # print(stickerset)
-    await msg.reply_text(f"sticker forked!, <a href='https://t.me/addstickers/{packshort}'>link</a>")
+    await msg.reply_text(f"sticker <a href='https://t.me/addstickers/{packshort}'>forked!</a>")
 
 
 @app.on_message(filters.command(['to_ts', 'ts']))
