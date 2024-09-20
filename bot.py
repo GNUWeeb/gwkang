@@ -24,6 +24,9 @@ app = Client(
     bot_token=os.getenv("TOKEN"),
 )
 
+@app.on_message(filters.command(['start']))
+async def startfunc(client, msg):
+    await msg.reply_text("Hello!")
 
 @app.on_message(filters.command(['dbg']))
 async def test(client, msg):
