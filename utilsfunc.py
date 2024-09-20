@@ -1,3 +1,4 @@
+import traceback
 from time import time
 from dotenv import load_dotenv
 import os
@@ -77,3 +78,7 @@ async def get_stickers(self, short_name):
         await Sticker._parse(self, doc, {type(a): a for a in doc.attributes})
         for doc in sticker_set.documents
     ]
+    
+async def send_trace(e, msg):
+    tb = traceback.format_exc()
+    await msg.reply_text(str(tb))

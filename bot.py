@@ -90,6 +90,9 @@ async def create_new_stickerpack(client, msg, sanitized_input, collection):
         )
         
         await msg.reply_text(f"kanged!, here your sticker\n\n{"https://t.me/addstickers/" + ret.short_name}")
+    except pyroexception.bad_request_400.PeerIdInvalid as e:
+        await msg.reply_text("Peer id invalid or not known yet, Please PM first")
+    
     except Exception as e:
         await msg.reply_text(e)
     
@@ -127,17 +130,24 @@ async def kangfunc(client, msg):
             await msg.reply_text(f"kanged!, here your sticker\n\n{"https://t.me/addstickers/" + ret.short_name}")
         except pyroexception.bad_request_400.StickersTooMuch:
             await create_new_stickerpack(client, msg, sanitized_input, collection)
+        except pyroexception.bad_request_400.StickersetInvalid:
+            await create_new_stickerpack(client, msg, sanitized_input, collection)
         except Exception as e:
             await msg.reply_text(e)
 
 @app.on_message(filters.command(['unkang']))
 async def unkangfunc(client, msg):
-
+    
     if msg.reply_to_message == None:
         await msg.reply_text("you must reply to another message")
         return;
     
-    decoded = FileId.decode(fn.get_file_id(msg))
+    try:
+        decoded = FileId.decode(fn.get_file_id(msg))
+    except TypeError:
+        await msg.reply_text("Invalid reply, can't detect media")
+    except Exception as e:
+        await fn.send_trace(e, msg)
 
     try:
         await client.invoke(RemoveStickerFromSet(
