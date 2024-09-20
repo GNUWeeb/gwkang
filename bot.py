@@ -82,19 +82,16 @@ async def create_new_stickerpack(client, msg, sanitized_input, collection):
             emoji=sanitized_input["ret"]
         )
         
-        collection.insert_one(
-            {
-                'user_id': msg.from_user.id,
-                'current': packshort
-            }
-        )
-        
         await msg.reply_text(f"kanged!, here your sticker\n\n{"https://t.me/addstickers/" + ret.short_name}")
+        return packshort
+    
     except pyroexception.bad_request_400.PeerIdInvalid as e:
         await msg.reply_text("Peer id invalid or not known yet, Please PM first")
+        return -1
     
     except Exception as e:
         await msg.reply_text(e)
+        return -1
     
 @app.on_message(filters.command(['kang']))
 async def kangfunc(client, msg):
@@ -114,7 +111,14 @@ async def kangfunc(client, msg):
         return;
 
     if dbquery == None:
-        await create_new_stickerpack(client, msg, sanitized_input, collection)
+        fnret = await create_new_stickerpack(client, msg, sanitized_input, collection)
+        if fnret != -1:
+            collection.insert_one(
+                {
+                    'user_id': msg.from_user.id,
+                    'current': fnret
+                }
+            )
     else:
         packshort = dbquery["current"]
         
@@ -128,10 +132,21 @@ async def kangfunc(client, msg):
             )
         
             await msg.reply_text(f"kanged!, here your sticker\n\n{"https://t.me/addstickers/" + ret.short_name}")
-        except pyroexception.bad_request_400.StickersTooMuch:
-            await create_new_stickerpack(client, msg, sanitized_input, collection)
-        except pyroexception.bad_request_400.StickersetInvalid:
-            await create_new_stickerpack(client, msg, sanitized_input, collection)
+        except (pyroexception.bad_request_400.StickersTooMuch, 
+                pyroexception.bad_request_400.StickersetInvalid):
+            fnret = await create_new_stickerpack(client, msg, sanitized_input, collection)
+            
+            if fnret != -1:
+                collection.update_one(
+                    {
+                        'user_id': msg.from_user.id
+                    }, 
+                    {
+                        '$set': {
+                            'current': fnret
+                        }
+                    }
+                )
         except Exception as e:
             await msg.reply_text(e)
 
@@ -209,7 +224,7 @@ async def forkfunc(client, msg):
     await msg.reply_text(f"sticker forked!, <a href='https://t.me/addstickers/{packshort}'>link</a>")
 
 
-@app.on_message(filters.command(['to_ts']))
+@app.on_message(filters.command(['to_ts', 'ts']))
 async def to_tsfunc(client, msg):
     if msg.reply_to_message == None or msg.reply_to_message.photo == None:
         await msg.reply_text("you must reply to photo")
