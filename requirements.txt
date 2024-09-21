@@ -10,3 +10,6 @@ PySocks==1.7.1
 python-dotenv==1.0.1
 TgCrypto==1.2.5
 typing_extensions==4.12.2
+lottie
+cairosvg
+motor

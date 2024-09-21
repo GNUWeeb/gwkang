@@ -15,6 +15,9 @@ from pymongo import MongoClient
 from dotenv import load_dotenv
 from PIL import Image
 
+from moviepy.editor import VideoFileClip
+from pool import run_in_thread
+
 g_dbctx = MongoClient(os.getenv("MONGO_URI"))
 load_dotenv()
 
@@ -23,6 +26,10 @@ app = Client(
     api_id=os.getenv("API_ID"), api_hash=os.getenv("API_HASH"),
     bot_token=os.getenv("TOKEN"),
 )
+
+@run_in_thread
+def convert_to_gif(paths):
+    os.system(f"./venv/bin/lottie_convert.py {paths} {paths}.gif")
 
 @app.on_message(filters.command(['start']))
 async def startfunc(client, msg):
@@ -273,5 +280,55 @@ async def packinfofunc(client, msg):
         f"short_name: {data.short_name}\n" + 
         f"total: {data.count}\n"
     )
+    
+    
+@app.on_message(filters.command(['toimg']))
+async def toimgfunc(client, msg):
+    if msg.reply_to_message == None or msg.reply_to_message.sticker == None:
+        await msg.reply_text("you must reply to sticker")
+        return;
+    
+    
+    
+    if msg.reply_to_message.sticker.is_animated == False and msg.reply_to_message.sticker.is_video == False:
+        byteres = await client.download_media(msg.reply_to_message, in_memory=True)
+        
+        bytepng = io.BytesIO();
+        im = Image.open(byteres)
+        im.save(bytepng, "png")
+        
+        await client.send_photo(
+            chat_id=msg.chat.id,
+            photo=bytepng,
+            reply_to_message_id=msg.reply_to_message.id
+        )
+    elif msg.reply_to_message.sticker.is_animated == False and msg.reply_to_message.sticker.is_video == True:
+        webppath = await client.download_media(msg.reply_to_message, in_memory=True)
+
+        
+        await client.send_animation(
+            chat_id=msg.chat.id,
+            animation=webppath,
+            reply_to_message_id=msg.reply_to_message.id
+        )
+        # print("end")
+        
+    elif msg.reply_to_message.sticker.is_animated == True and msg.reply_to_message.sticker.is_video == False:
+        
+        await msg.reply_text("please be patient, rendering your animation")
+        animationpath = await client.download_media(msg.reply_to_message)
+        
+        await convert_to_gif(animationpath)
+        
+        await client.send_document(
+            chat_id=msg.chat.id,
+            document=animationpath + ".gif",
+            reply_to_message_id=msg.reply_to_message.id
+        )
+        
+        os.remove(animationpath)
+        os.remove(animationpath + ".gif")
+        # print("end")
+        
     
 app.run()
