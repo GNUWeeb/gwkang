@@ -15,7 +15,6 @@ from pymongo import MongoClient
 from dotenv import load_dotenv
 from PIL import Image
 
-from moviepy.editor import VideoFileClip
 from pool import run_in_thread
 
 g_dbctx = MongoClient(os.getenv("MONGO_URI"))
