@@ -99,7 +99,8 @@ async def create_new_stickerpack(client, msg, sanitized_input, collection):
         return -1
     
     except Exception as e:
-        await msg.reply_text(e)
+        # await msg.reply_text(e)
+        await fn.send_trace(e, msg)
         return -1
     
 @app.on_message(filters.command(['kang']))
@@ -113,6 +114,8 @@ async def kangfunc(client, msg):
     
     # find current sticker set
     dbquery = collection.find_one({'user_id': msg.from_user.id});
+    
+    print(dbquery)
     
     sanitized_input = fn.sanitize_emoji(msg)
     if sanitized_input["err"] == 1:
@@ -157,7 +160,7 @@ async def kangfunc(client, msg):
                     }
                 )
         except Exception as e:
-            await msg.reply_text(e)
+            await fn.send_trace(e, msg)
 
 @app.on_message(filters.command(['unkang']))
 async def unkangfunc(client, msg):
