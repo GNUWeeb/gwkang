@@ -283,9 +283,17 @@ async def packinfofunc(client, msg):
         f"total: {data.count}\n"
     )
     
+@app.on_message(filters.command(['del']))
+async def msgdel(client, msg):
+    await client.delete_messages(
+        chat_id=msg.chat.id,
+        message_ids=msg.reply_to_message.id
+    )
+    
     
 @app.on_message(filters.command(['toimg']))
 async def toimgfunc(client, msg):
+
     if msg.reply_to_message == None or msg.reply_to_message.sticker == None:
         await msg.reply_text("you must reply to sticker")
         return;
