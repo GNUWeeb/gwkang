@@ -13,10 +13,19 @@ load_dotenv()
 
 def genrand_stickerpack_name(msg):
         cur_time = int(time());
-        return [
-                f'Sticker {msg.from_user.first_name} {msg.from_user.last_name}',
-                f'a{msg.from_user.id}_on_{cur_time}_by_{os.getenv("BOT_USERNAME")}',
-        ]
+        
+        if msg.from_user.last_name == None:
+            ret = [
+                    f'Sticker {msg.from_user.first_name}',
+                    f'a{msg.from_user.id}_on_{cur_time}_by_{os.getenv("BOT_USERNAME")}',
+            ]
+        else:
+            ret = [
+                    f'Sticker {msg.from_user.first_name} {msg.from_user.last_name}',
+                    f'a{msg.from_user.id}_on_{cur_time}_by_{os.getenv("BOT_USERNAME")}',
+            ]
+            
+        return ret
 
 def get_file_id(msg):
         if msg.reply_to_message.photo != None:

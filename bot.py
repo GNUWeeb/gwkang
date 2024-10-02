@@ -91,8 +91,10 @@ async def create_new_stickerpack(client, msg, sanitized_input, collection):
             emoji=sanitized_input["ret"]
         )
         
-        await msg.reply_text(f"<a href='https://t.me/addstickers/{ret.short_name}'>Kanged!</a>")
-        return packshort
+        msgdata = await msg.reply_text(f"<a href='https://t.me/addstickers/{ret.short_name}'>Kanged!</a>")
+        return [
+            packshort, msgdata
+        ]
     
     except pyroexception.bad_request_400.PeerIdInvalid as e:
         await msg.reply_text("Peer id invalid or not known yet, Please PM first")
@@ -102,7 +104,7 @@ async def create_new_stickerpack(client, msg, sanitized_input, collection):
         # await msg.reply_text(e)
         await fn.send_trace(e, msg)
         return -1
-    
+        
 @app.on_message(filters.command(['kang']))
 async def kangfunc(client, msg):
     if msg.reply_to_message == None or msg.reply_to_message.sticker == None:
@@ -128,9 +130,11 @@ async def kangfunc(client, msg):
             collection.insert_one(
                 {
                     'user_id': msg.from_user.id,
-                    'current': fnret
+                    'current': fnret[0]
                 }
             )
+            
+            return fnret[1]
     else:
         packshort = dbquery["current"]
         
@@ -143,7 +147,9 @@ async def kangfunc(client, msg):
                 emoji=sanitized_input["ret"]
             )
 
-            await msg.reply_text(f"<a href='https://t.me/addstickers/{ret.short_name}'>Kanged!</a>")
+            msgret = await msg.reply_text(f"<a href='https://t.me/addstickers/{ret.short_name}'>Kanged!</a>")
+            
+            return msgret
         except (pyroexception.bad_request_400.StickersTooMuch, 
                 pyroexception.bad_request_400.StickersetInvalid):
             fnret = await create_new_stickerpack(client, msg, sanitized_input, collection)
@@ -161,6 +167,16 @@ async def kangfunc(client, msg):
                 )
         except Exception as e:
             await fn.send_trace(e, msg)
+            
+# @app.on_message(filters.command(['kang2']))
+# async def kang2func(client, msg):
+#     if msg.reply_to_message == None:
+#         await msg.reply_text("you must reply to sticker or photo")
+#     else:
+#         msgret = await to_tsfunc(client, msg)
+        
+#         print(msgret)
+#         await msg.reply_text("test")
 
 @app.on_message(filters.command(['unkang']))
 async def unkangfunc(client, msg):
@@ -259,7 +275,7 @@ async def to_tsfunc(client, msg):
     image.save(iomem, 'webp')
     
     
-    await client.send_sticker(
+    return await client.send_sticker(
         chat_id=msg.chat.id,
         sticker=iomem,
         reply_to_message_id=msg.reply_to_message.id
