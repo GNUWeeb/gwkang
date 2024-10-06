@@ -8,6 +8,7 @@ from pyrogram.raw.types import InputDocument
 from pyrogram.raw.functions.stickers import RemoveStickerFromSet
 import pyrogram.errors.exceptions as pyroexception
 import pyrogram.enums as pyroenum
+import imgbbpy
 
 from pyrogram.file_id import FileId
 
@@ -356,5 +357,23 @@ async def toimgfunc(client, msg):
         os.remove(animationpath + ".gif")
         # print("end")
         
+@app.on_message(filters.command(['sauce']))
+async def reverseimg(client, msg):
+    if msg.reply_to_message != None:
+        if msg.reply_to_message.sticker != None or msg.reply_to_message.photo != None:
+        
+            byteres = await client.download_media(msg.reply_to_message)
+            
+            client = imgbbpy.AsyncClient(os.getenv("IMGBB_API"))
+            image = await client.upload(file=byteres)
+            
+            formatstr = f"""<a href="https://saucenao.com/search.php?url={image.url}">saucenao</a><br>
+<a href="https://lens.google.com/uploadbyurl?url={image.url}">google</a>"""
+            await msg.reply_text(formatstr)
+            os.remove(byteres)
+
+    else:
+        await msg.reply_text("you must reply to a sticker / image")
+        return;
     
 app.run()
