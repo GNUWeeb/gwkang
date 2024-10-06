@@ -14,6 +14,13 @@ load_dotenv()
 def genrand_stickerpack_name(msg):
         cur_time = int(time());
         
+        if msg.sender_chat != None:
+            ret = [
+                    f'Sticker {msg.sender_chat.title}',
+                    f'a{str(msg.sender_chat.id)[1:]}_on_{cur_time}_by_{os.getenv("BOT_USERNAME")}',
+            ]
+            return ret
+        
         if msg.from_user.last_name == None:
             ret = [
                     f'Sticker {msg.from_user.first_name}',
