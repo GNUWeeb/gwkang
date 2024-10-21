@@ -162,7 +162,7 @@ async def kangfunc(client, msg):
                     }, 
                     {
                         '$set': {
-                            'current': fnret
+                            'current': fnret[0]
                         }
                     }
                 )
