@@ -7,6 +7,7 @@ import tempfile
 import shutil
 from pyrogram.types import Sticker
 from pyrogram.raw.functions.messages import GetStickerSet
+from pyrogram.raw.functions.stickers import RenameStickerSet
 from pyrogram.raw.types import InputStickerSetShortName
 
 load_dotenv()
@@ -98,3 +99,23 @@ async def get_stickers(self, short_name):
 async def send_trace(e, msg):
     tb = traceback.format_exc()
     await msg.reply_text(str(tb))
+    
+def random_hex_string(length=2):
+    return str(os.urandom(length).hex())
+
+async def rename_sticker(shortname, client):
+    randomized_hex = random_hex_string()
+    
+    data = await client.get_sticker_set(
+        shortname
+    )
+    
+    if data.title[0] == '#':
+        formats = f"#{randomized_hex} {data.title[6:]}"
+
+    else:
+        formats = f"#{randomized_hex} {data.title}"
+
+    sticker_set = await client.invoke(
+        RenameStickerSet(stickerset=InputStickerSetShortName(short_name=data.short_name), title=formats)
+    )

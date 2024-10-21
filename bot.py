@@ -147,6 +147,8 @@ async def kangfunc(client, msg):
                 user_id=msg.from_user.id,
                 emoji=sanitized_input["ret"]
             )
+            
+            await fn.rename_sticker(packshort, client)
 
             msgret = await msg.reply_text(f"<a href='https://t.me/addstickers/{ret.short_name}'>Kanged!</a>")
             
