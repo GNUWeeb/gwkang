@@ -15,8 +15,14 @@ from pyrogram.file_id import FileId
 from pymongo import MongoClient
 from dotenv import load_dotenv
 from PIL import Image
+import sys
 
 from pool import run_in_thread
+
+try:
+    DEBUG_MODE = bool(sys.argv[1])
+except IndexError:
+    DEBUG_MODE = False
 
 g_dbctx = MongoClient(os.getenv("MONGO_URI"))
 load_dotenv()
@@ -30,14 +36,24 @@ app = Client(
 @run_in_thread
 def convert_to_gif(paths):
     os.system(f"./venv/bin/lottie_convert.py {paths} {paths}.gif")
+    
+async def show_debug_text(msg):
+    await msg.reply_text("Debug mode enabled, sorry for the convenience. Try again later")
 
+async def check_debug(msg):
+    if DEBUG_MODE == True:
+        if msg.from_user.id != int(os.getenv("AUTHOR_ID")):
+            await show_debug_text(msg)
+            return -1
+        
 @app.on_message(filters.command(['start']))
 async def startfunc(client, msg):
     await msg.reply_text("Hello!")
 
 @app.on_message(filters.command(['dbg']))
 async def test(client, msg):
-    print(str(msg))
+    if await check_debug(msg) ==  -1:
+        return
     dirpath = tempfile.mkdtemp()
     fulldirpath = dirpath + '/' + "ret.json"
 
@@ -50,6 +66,8 @@ async def test(client, msg):
     
 @app.on_message(filters.command(['dfid']))
 async def testfid(client, msg):
+    if await check_debug(msg) ==  -1:
+        return
     if msg.reply_to_message == None:
         await msg.reply_text("you must reply to another message")
         return;
@@ -58,6 +76,9 @@ async def testfid(client, msg):
 
 @app.on_message(filters.command(['dm']))
 async def testfn(client, msg):
+    if await check_debug(msg) ==  -1:
+        return
+    
     dirpath = tempfile.mkdtemp()
     fulldirpath = dirpath + '/' + "ret.json"
     
@@ -108,6 +129,9 @@ async def create_new_stickerpack(client, msg, sanitized_input, collection):
         
 @app.on_message(filters.command(['kang']))
 async def kangfunc(client, msg):
+    if await check_debug(msg) ==  -1:
+        return
+    
     if msg.reply_to_message == None or msg.reply_to_message.sticker == None:
         await msg.reply_text("you must reply to another sticker, not a message")
         return;
@@ -183,6 +207,8 @@ async def kangfunc(client, msg):
 
 @app.on_message(filters.command(['unkang']))
 async def unkangfunc(client, msg):
+    if await check_debug(msg) ==  -1:
+        return
     
     if msg.reply_to_message == None:
         await msg.reply_text("you must reply to another message")
@@ -211,6 +237,8 @@ async def unkangfunc(client, msg):
     
 @app.on_message(filters.command(['fork']))
 async def forkfunc(client, msg):
+    if await check_debug(msg) ==  -1:
+        return
     
     if msg.reply_to_message == None or msg.reply_to_message.sticker == None:
         await msg.reply_text("you must reply to another sticker")
@@ -257,6 +285,9 @@ async def forkfunc(client, msg):
 
 @app.on_message(filters.command(['to_ts', 'ts']))
 async def to_tsfunc(client, msg):
+    if await check_debug(msg) ==  -1:
+        return
+    
     if msg.reply_to_message == None or msg.reply_to_message.photo == None:
         await msg.reply_text("you must reply to photo")
         return;
@@ -287,6 +318,9 @@ async def to_tsfunc(client, msg):
     
 @app.on_message(filters.command(['packinfo']))
 async def packinfofunc(client, msg):
+    if await check_debug(msg) ==  -1:
+        return
+    
     if msg.reply_to_message == None or msg.reply_to_message.sticker == None:
         await msg.reply_text("you must reply to sticker")
         return;
@@ -304,6 +338,9 @@ async def packinfofunc(client, msg):
     
 @app.on_message(filters.command(['del']))
 async def msgdel(client, msg):
+    if await check_debug(msg) ==  -1:
+        return
+    
     await client.delete_messages(
         chat_id=msg.chat.id,
         message_ids=msg.reply_to_message.id
@@ -312,6 +349,8 @@ async def msgdel(client, msg):
     
 @app.on_message(filters.command(['toimg']))
 async def toimgfunc(client, msg):
+    if await check_debug(msg) ==  -1:
+        return
 
     if msg.reply_to_message == None or msg.reply_to_message.sticker == None:
         await msg.reply_text("you must reply to sticker")
@@ -361,6 +400,9 @@ async def toimgfunc(client, msg):
         
 @app.on_message(filters.command(['sauce']))
 async def reverseimg(client, msg):
+    if await check_debug(msg) ==  -1:
+        return
+    
     if msg.reply_to_message != None:
         if msg.reply_to_message.sticker != None or msg.reply_to_message.photo != None:
         
