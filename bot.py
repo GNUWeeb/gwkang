@@ -50,7 +50,7 @@ async def check_debug(msg):
 async def startfunc(client, msg):
     await msg.reply_text("Hello!")
 
-@app.on_message(filters.command(['dbg']))
+@app.on_message(filters.command(['debug_json']))
 async def test(client, msg):
     if await check_debug(msg) ==  -1:
         return
@@ -64,7 +64,7 @@ async def test(client, msg):
 
     shutil.rmtree(dirpath)
     
-@app.on_message(filters.command(['dfid']))
+@app.on_message(filters.command(['debug_file_id']))
 async def testfid(client, msg):
     if await check_debug(msg) ==  -1:
         return
@@ -73,7 +73,7 @@ async def testfid(client, msg):
         return;
     await msg.reply_text(fn.get_file_id(msg))
     
-@app.on_message(filters.command(['dimg']))
+@app.on_message(filters.command(['debug_img']))
 async def testfid(client, msg):
     if await check_debug(msg) ==  -1:
         return
@@ -96,7 +96,7 @@ async def testfid(client, msg):
     await msg.reply_text(f"width: {width}; height: {height}; close: {closest}")
 
 
-@app.on_message(filters.command(['dm']))
+@app.on_message(filters.command(['debug_msg']))
 async def testfn(client, msg):
     if await check_debug(msg) ==  -1:
         return
@@ -105,17 +105,11 @@ async def testfn(client, msg):
     fulldirpath = dirpath + '/' + "ret.json"
     
     # start
-    
-    ret = await client.download_media(
-        message=msg.reply_to_message,
-        in_memory=True
-    )
-    
-    print(ret)
+
     # end
 
     with open(fulldirpath, "w+") as dbgstr:
-        dbgstr.write(str(ret))
+        dbgstr.write(str(msg))
 
     await client.send_document(document=fulldirpath, chat_id=msg.chat.id)
 
@@ -312,7 +306,7 @@ async def forkfunc(client, msg):
     await msg.reply_text(f"sticker <a href='https://t.me/addstickers/{packshort}'>forked!</a>")
 
 
-@app.on_message(filters.command(['to_ts', 'ts']))
+@app.on_message(filters.command(['to_ts', 'ts', 'tosticker', 'to_sticker']))
 async def to_tsfunc(client, msg):
     if await check_debug(msg) ==  -1:
         return
@@ -353,7 +347,7 @@ async def to_tsfunc(client, msg):
     )
     
     
-@app.on_message(filters.command(['packinfo']))
+@app.on_message(filters.command(['packinfo', 'info', 'stickerpack']))
 async def packinfofunc(client, msg):
     if await check_debug(msg) ==  -1:
         return
@@ -373,7 +367,7 @@ async def packinfofunc(client, msg):
         f"total: {data.count}\n"
     )
     
-@app.on_message(filters.command(['del']))
+@app.on_message(filters.command(['del', 'delete', 'rm', 'remove']))
 async def msgdel(client, msg):
     if await check_debug(msg) ==  -1:
         return
@@ -384,7 +378,7 @@ async def msgdel(client, msg):
     )
     
     
-@app.on_message(filters.command(['toimg']))
+@app.on_message(filters.command(['toimg', 'img', 'timg', 'tm']))
 async def toimgfunc(client, msg):
     if await check_debug(msg) ==  -1:
         return
@@ -435,7 +429,7 @@ async def toimgfunc(client, msg):
         os.remove(animationpath + ".gif")
         # print("end")
         
-@app.on_message(filters.command(['sauce']))
+@app.on_message(filters.command(['sauce', 'source', 'reverse']))
 async def reverseimg(client, msg):
     if await check_debug(msg) ==  -1:
         return
