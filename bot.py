@@ -144,6 +144,10 @@ async def create_new_stickerpack(client, msg, sanitized_input, collection):
         await msg.reply_text("Peer id invalid or not known yet, Please PM first")
         return -1
     
+    except pyroexception.bad_request_400.StickerPngDimensions:
+        await msg.reply_text("sticker dimension is invalid. Please send valid image, not too small or too big")
+        return -1
+    
     except Exception as e:
         # await msg.reply_text(e)
         await fn.send_trace(e, msg)
@@ -214,6 +218,9 @@ async def kangfunc(client, msg):
                         }
                     }
                 )
+        except pyroexception.bad_request_400.StickerPngDimensions:
+            await msg.reply_text("sticker dimension is invalid. Please send valid image, not too small or too big")
+            return -1
         except Exception as e:
             await fn.send_trace(e, msg)
             
