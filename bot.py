@@ -73,6 +73,28 @@ async def testfid(client, msg):
         return;
     await msg.reply_text(fn.get_file_id(msg))
     
+@app.on_message(filters.command(['dimg']))
+async def testfid(client, msg):
+    if await check_debug(msg) ==  -1:
+        return
+    
+    bytesio_ret = await client.download_media(
+        message=msg.reply_to_message,
+        in_memory=True
+    )
+    
+    imctx = Image.open(bytesio_ret)
+    width, height = imctx.size
+    closest = fn.closest_num(imctx.size, 512)
+    
+    if width == closest:
+        width = 512
+    if height == closest:
+        height = 512
+    
+    
+    await msg.reply_text(f"width: {width}; height: {height}; close: {closest}")
+
 
 @app.on_message(filters.command(['dm']))
 async def testfn(client, msg):
@@ -297,16 +319,24 @@ async def to_tsfunc(client, msg):
         in_memory=True
     )
     
-    size = 512, 512
+    # size = 512, 512
     
     iomem = io.BytesIO()
     iomem.name = "rand.webp"
     
-    image = Image.open(bytesio_ret)
-    image = image.convert('RGB')
-    image = image.resize((512, 512), Image.Resampling.LANCZOS)
+    imctx = Image.open(bytesio_ret)
+    width, height = imctx.size
+    closest = fn.closest_num(imctx.size, 512)
+    
+    if width == closest:
+        width = 512
+    if height == closest:
+        height = 512
+        
+    imctx = imctx.convert('RGB')
+    imctx = imctx.resize((width, height), Image.Resampling.LANCZOS)
 
-    image.save(iomem, 'webp')
+    imctx.save(iomem, 'webp')
     
     
     return await client.send_sticker(

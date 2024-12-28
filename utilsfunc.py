@@ -119,3 +119,6 @@ async def rename_sticker(shortname, client):
     sticker_set = await client.invoke(
         RenameStickerSet(stickerset=InputStickerSetShortName(short_name=data.short_name), title=formats)
     )
+    
+def closest_num(nums, target):
+    return min(nums, key=lambda x: abs(x - target))
