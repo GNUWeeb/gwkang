@@ -326,16 +326,36 @@ async def to_tsfunc(client, msg):
     iomem.name = "rand.webp"
     
     imctx = Image.open(bytesio_ret)
-    width, height = imctx.size
-    closest = fn.closest_num(imctx.size, 512)
+        # width, height = imctx.size
+    # closest = fn.closest_num(imctx.size, 512)
     
-    if width == closest:
-        width = 512
-    if height == closest:
-        height = 512
+    # if width == closest:
+    #     if closest > 512:
+            
+    #         # trim
+    #         width, height = [512, height - (closest - 512) ]
+    #     else:
+    #         width, height = [512, height + (closest - 512) ]
+            
+    # if height == closest:
+    #     # height = 512
+    #     if closest > 512:
+            
+    #         # trim
+    #         width, height = [width - (closest - 512), 512 ]
+    #     else:
+    #         width, height = [width + (closest - 512), 512 ]
+    
+    width, height = imctx.size
+    if width > height:
+        new_width = 512
+        new_height = int((512 / width) * height)
+    else:
+        new_height = 512
+        new_width = int((512 / height) * width)
         
     imctx = imctx.convert('RGB')
-    imctx = imctx.resize((width, height), Image.Resampling.LANCZOS)
+    imctx = imctx.resize((new_width, new_height), Image.Resampling.LANCZOS)
 
     imctx.save(iomem, 'webp')
     
